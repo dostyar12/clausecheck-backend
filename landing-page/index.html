@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClauseCheck — Explain Any Contract in Plain English</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <span class="logo">ClauseCheck</span>
+      <a href="install.html" class="nav-install">Install</a>
+    </nav>
+
+    <section class="hero">
+      <h1>Understand Any Contract<br><span class="highlight">Before You Sign</span></h1>
+      <p class="subtitle">Highlight any legal text — ToS, lease, contract — and get the risks explained in plain English. In 5 seconds.</p>
+
+      <div class="price-box">
+        <span class="price">$12</span>
+        <span class="price-note">one-time payment · no subscription · pay with USDT (TRC-20)</span>
+      </div>
+
+      <div class="checkout-form">
+        <input id="email-input" type="email" placeholder="Your email (license key sent here)" autocomplete="email">
+        <button id="buy-btn" class="btn-primary">Buy with Crypto</button>
+        <p id="checkout-msg" class="checkout-msg"></p>
+      </div>
+    </section>
+
+    <section class="demo">
+      <h2>See It In Action</h2>
+      <div class="demo-box">
+        <div class="demo-input">
+          <span class="demo-label">Selected text</span>
+          <p>"Company may modify these terms at any time. Continued use constitutes acceptance of modified terms."</p>
+        </div>
+        <div class="demo-arrow">→</div>
+        <div class="demo-output">
+          <span class="demo-label">ClauseCheck result</span>
+          <div class="demo-badge medium">Medium Risk</div>
+          <p class="demo-summary">This clause lets the company change the agreement whenever they want, and by continuing to use the service, you automatically agree to the new terms.</p>
+          <ul class="demo-flags">
+            <li>Unilateral modification</li>
+            <li>No opt-out mechanism</li>
+            <li>Implied consent by usage</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+
+      <details>
+        <summary>What payment methods are accepted?</summary>
+        <p>Crypto only — Bitcoin, Ethereum, USDT, USDC, and 100+ coins via NOWPayments.</p>
+      </details>
+
+      <details>
+        <summary>How do I get my license key?</summary>
+        <p>After payment, your license key is emailed instantly. Enter it in the extension popup to activate.</p>
+      </details>
+
+      <details>
+        <summary>Can I get a refund?</summary>
+        <p>Due to the nature of digital goods, refunds are not available. Try the extension — it's only $12.</p>
+      </details>
+
+      <details>
+        <summary>Does it store my data?</summary>
+        <p>No accounts, no tracking. Your license key is stored locally in your browser. Legal text is processed and discarded immediately.</p>
+      </details>
+    </section>
+
+    <footer class="footer">
+      <p>ClauseCheck v1.0.0 · Built for people who'd rather not hire a lawyer for every contract.</p>
+    </footer>
+  </div>
+
+  <script>
+    const API_BASE = "https://clausecheck-backend.dostyar50.workers.dev";
+
+    document.getElementById("buy-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email-input").value.trim();
+      const msg = document.getElementById("checkout-msg");
+      const btn = document.getElementById("buy-btn");
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg.textContent = "Please enter a valid email first.";
+        msg.className = "checkout-msg error";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Creating checkout...";
+      msg.textContent = "";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.invoiceUrl) {
+          throw new Error(data.error || "Checkout failed");
+        }
+        window.location.href = data.invoiceUrl;
+      } catch (e) {
+        msg.textContent = "Something went wrong. Please try again.";
+        msg.className = "checkout-msg error";
+        btn.disabled = false;
+        btn.textContent = "Buy with Crypto";
+      }
+    });
+  </script>
+</body>
+</html>

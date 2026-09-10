@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <h1>ClauseCheck</h1>
+      <span class="version">v1.0.0</span>
+    </div>
+
+    <div id="activated-view" class="hidden">
+      <div class="status active">
+        <div class="dot green"></div>
+        Active
+      </div>
+      <p class="tip">Select any legal text on a webpage, then right-click and choose <strong>"Explain this with ClauseCheck"</strong>.</p>
+    </div>
+
+    <div id="activate-view" class="hidden">
+      <p class="desc">Enter your license key to activate ClauseCheck.</p>
+      <input type="text" id="key-input" placeholder="CC-XXXX-XXXX-XXXX" spellcheck="false" autocomplete="off">
+      <button id="activate-btn">Activate</button>
+      <p id="error-msg" class="error hidden"></p>
+      <a href="https://clausecheck-1d1.pages.dev" target="_blank" class="buy-link">Don't have a key? Buy one</a>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

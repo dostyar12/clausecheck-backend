@@ -1,0 +1,8 @@
+name = "clausecheck-backend"
+main = "index.js"
+compatibility_date = "2026-09-01"
+account_id = "4cabeb8460d2746cf346ae597e33acf1"
+
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "f95380ac735041aeb5c8fd51d2ff9acf"
