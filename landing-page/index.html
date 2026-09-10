@@ -50,6 +50,21 @@
       </div>
     </section>
 
+    <section class="try-it">
+      <h2>Try It Free — Right Now</h2>
+      <p class="subtitle">Paste any clause below and get a plain-English breakdown in seconds. No sign-up.</p>
+      <textarea id="demo-input" placeholder="Paste any legal text here, e.g. &quot;Tenant agrees to indemnify Landlord for any and all claims arising from use of the premises.&quot; (up to 1200 characters)"></textarea>
+      <div class="try-it-row">
+        <button id="demo-btn" class="btn-primary">Explain This</button>
+        <span id="demo-msg" class="checkout-msg"></span>
+      </div>
+      <div id="demo-result" class="demo-output" hidden>
+        <div id="demo-badge" class="demo-badge"></div>
+        <p id="demo-summary" class="demo-summary"></p>
+        <ul id="demo-flags" class="demo-flags"></ul>
+      </div>
+    </section>
+
     <section class="faq">
       <h2>FAQ</h2>
 
@@ -81,6 +96,54 @@
 
   <script>
     const API_BASE = "https://clausecheck-backend.dostyar50.workers.dev";
+
+    async function runDemo() {
+      const input = document.getElementById("demo-input").value.trim();
+      const msg = document.getElementById("demo-msg");
+      const btn = document.getElementById("demo-btn");
+      const result = document.getElementById("demo-result");
+
+      if (!input) {
+        msg.textContent = "Paste some legal text first.";
+        msg.className = "checkout-msg error";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Explaining...";
+      msg.textContent = "";
+      result.hidden = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/demo/explain`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: input }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Failed");
+        }
+        document.getElementById("demo-badge").textContent = data.riskScore + " Risk";
+        document.getElementById("demo-badge").className = "demo-badge " + (data.riskScore || "low").toLowerCase();
+        document.getElementById("demo-summary").textContent = data.summary || "";
+        const flags = document.getElementById("demo-flags");
+        flags.innerHTML = "";
+        (data.redFlags || []).forEach((f) => {
+          const li = document.createElement("li");
+          li.textContent = f;
+          flags.appendChild(li);
+        });
+        result.hidden = false;
+      } catch (e) {
+        msg.textContent = "Limit reached or error — try again later.";
+        msg.className = "checkout-msg error";
+      }
+      btn.disabled = false;
+      btn.textContent = "Explain This";
+    }
+
+    document.getElementById("demo-btn").addEventListener("click", runDemo);
 
     document.getElementById("buy-btn").addEventListener("click", async () => {
       const email = document.getElementById("email-input").value.trim();

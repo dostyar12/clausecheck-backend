@@ -91,6 +91,9 @@ export default {
     if (url.pathname === "/api/explain" && request.method === "POST") {
       return handleExplain(request, env);
     }
+    if (url.pathname === "/api/demo/explain" && request.method === "POST") {
+      return handleDemoExplain(request, env);
+    }
     if (url.pathname === "/api/verify-license" && request.method === "POST") {
       return handleVerify(request, env);
     }
@@ -147,6 +150,37 @@ async function handleExplain(request, env) {
     return json(result);
   } catch (err) {
     console.error("Explain error:", err);
+    return json({ error: "Failed to process request" }, 500);
+  }
+}
+
+async function handleDemoExplain(request, env) {
+  try {
+    const body = await request.json();
+    const text = body.text;
+
+    if (!text || typeof text !== "string") {
+      return json({ error: "text is required" }, 400);
+    }
+    if (text.length > 1200) {
+      return json({ error: "Demo limited to 1200 characters" }, 400);
+    }
+
+    const ip = request.headers.get("CF-Connecting-IP") || "anon";
+    const today = new Date().toISOString().slice(0, 10);
+    const rlKey = `rl:demo:${ip}:${today}`;
+    const count = (await env.LICENSES.get(rlKey, "json")) || 0;
+
+    if (count >= 5) {
+      return json({ error: "Demo limit reached for today" }, 429);
+    }
+
+    const result = await explainText(text, env);
+    await env.LICENSES.put(rlKey, JSON.stringify(count + 1));
+
+    return json(result);
+  } catch (err) {
+    console.error("Demo explain error:", err);
     return json({ error: "Failed to process request" }, 500);
   }
 }
